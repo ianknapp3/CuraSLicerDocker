@@ -18,6 +18,11 @@ while [[ $# -gt 0 ]]; do
         shift # past argument
         shift # past value
         ;;
+        -j|--settings)
+        SETTINGS_FILE="$2"
+        shift # past argument
+        shift # past value
+        ;;
         *)
         shift # unknown option
         ;;
@@ -26,7 +31,7 @@ done
 
 # Ensure required parameters are set
 if [ -z "$INPUT_FILE" ] || [ -z "$OUTPUT_FILE" ]; then
-    echo "Usage: $0 --input <input_file.stl> --output <output_file.gcode>"
+    echo "Usage: $0 --input <input_file.stl> --output <output_file.gcode> --settings <settings_file.json>"
     exit 1
 fi
 
@@ -34,7 +39,11 @@ fi
 cd /CuraEngine/build
 
 # Execute slicing command with CuraEngine
-./CuraEngine slice -l "$INPUT_FILE" -o "$OUTPUT_FILE"
+if [ -z "$SETTINGS_FILE" ]; then
+    ./CuraEngine slice -l "$INPUT_FILE" -o "$OUTPUT_FILE"
+else
+    ./CuraEngine slice -j "$SETTINGS_FILE" -l "$INPUT_FILE" -o "$OUTPUT_FILE"
+fi
 
 # Optionally, you can copy the output file to the specified output directory
 # if [ -d "$OUTPUT_DIR" ]; then
